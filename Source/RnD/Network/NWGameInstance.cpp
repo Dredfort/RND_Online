@@ -193,9 +193,6 @@ void UNWGameInstance::FindSessions(TSharedPtr<const FUniqueNetId> UserId, FName 
 		IOnlineSessionPtr Sessions = OnlineSub->GetSessionInterface();
 		if (Sessions.IsValid() && UserId.IsValid())
 		{
-			UE_LOG(RNDGameInstanceLog, Log, TEXT("Starting to find session:"));
-			UE_LOG(RNDGameInstanceLog, Log, TEXT("- %s"), bIsLAN == true ? TEXT("LAN") : TEXT("INTERNET"));
-
 			/*
 			Fill in all the SearchSettings, like if we are searching for a LAN game and how many results we want to have!
 			*/
@@ -212,6 +209,12 @@ void UNWGameInstance::FindSessions(TSharedPtr<const FUniqueNetId> UserId, FName 
 			TSharedRef<FOnlineSessionSearch> SearchSettingsRef = SessionSearch.ToSharedRef();
 			// Set the Delegate to the Delegate Handle of the FindSession function
 			OnFindSessionsCompleteDelegateHandle = Sessions->AddOnFindSessionsCompleteDelegate_Handle(OnFindSessionsCompleteDelegate);
+
+			UE_LOG(RNDGameInstanceLog, Log, TEXT("============================================="));
+			UE_LOG(RNDGameInstanceLog, Log, TEXT("Starting to find sessions:"));
+			UE_LOG(RNDGameInstanceLog, Log, TEXT("- %s"), SessionSearch->bIsLanQuery == true ? TEXT("LAN") : TEXT("INTERNET"));
+			UE_LOG(RNDGameInstanceLog, Log, TEXT("- MaxSearchResults: %d"), SessionSearch->MaxSearchResults);
+			UE_LOG(RNDGameInstanceLog, Log, TEXT("============================================="));
 
 			// Finally call the SessionInterface function. The Delegate gets called once this is finished
 			Sessions->FindSessions(*UserId, SearchSettingsRef);
@@ -245,8 +248,10 @@ void UNWGameInstance::OnFindSessionsComplete(bool bWasSuccessful)
 
 			TArray<FCustomBlueprintSessionResult> CustomSessionResults;
 
+			UE_LOG(RNDGameInstanceLog, Log, TEXT("++++++++++++++++++++++++++"));
 			UE_LOG(RNDGameInstanceLog, Log, TEXT("Find session completed"));
 			UE_LOG(RNDGameInstanceLog, Log, TEXT("Finded [%d] sessions"), SessionSearch->SearchResults.Num());
+			UE_LOG(RNDGameInstanceLog, Log, TEXT("++++++++++++++++++++++++++"));
 
 			// If we have found at least 1 session, we just going to debug them. You could add them to a list of UMG Widgets, like it is done in the BP version!
 			if (SessionSearch->SearchResults.Num() > 0)
